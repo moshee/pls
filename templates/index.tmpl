@@ -1,0 +1,79 @@
+{{ define "index" }}
+{{ with $.Data }}
+<!doctype html>
+<html>
+  <head>
+    <title>pls go</title>
+    <link href="https://fonts.googleapis.com/css?family=Tinos|Rubik:400,700&amp;subset=latin-ext" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div id="shroud"></div>
+    <div id="follower">
+      <svg id="loader">
+        <circle id="loader-bg" cx="100" cy="100" r="100"></circle>
+        <circle id="loader-track" cx="100" cy="100" r="96"></circle>
+        <path id="loader-bar"></path>
+        <button id="cancel-upload" type="button">Cancel</button>
+      </svg>
+    </div>
+    <section id="main">
+      <header>
+        <h1><a href="/">pls go</a></h1>
+        <canvas id="vis" width="256" height="32"></canvas>
+        <input type="file" id="file-upload" class="hidden">
+        <button type="button" id="upload">Upload</button>
+      </header>
+      <ul id="songlist">
+        {{ range . }}
+        {{ template "song" . }}
+        {{ end }}
+      </ul>
+      <footer><span id="track-count">{{ len . }}</span> track(s).</footer>
+    </section>
+    <script src="/static/vis.pls.js"></script>
+    <script src="/static/key.pls.js"></script>
+    <script src="/static/pls.js"></script>
+    <script>
+      Pls.init({
+        vis: {
+          bars: 64
+        }
+      });
+    </script>
+  </body>
+</html>
+{{ end }}
+{{ end }}
+
+{{ define "song" }}
+        <li class="song{{ if .Fresh }} fresh{{ end }}" data-id="{{ .ID }}" data-slug="{{ .Slug }}">
+          <button class="delete-song" type="button">╳</button>
+          <a href="/{{ .ID }}/{{ .Slug }}" title="{{ .Filename }}">
+            {{ with .Tags }}
+            <h2>{{ with .Artist }}{{ . }} — {{ end }}{{ .Title }}</h2>
+              {{ if .Album }}
+            <h3><span>{{ .Album }}</span>{{ if not .Date.IsZero }} <time>({{ .Date.Year }})</time>{{ end }}, on {{ $.Date.Format "2006-01-02" }}</h3>
+              {{ else if not .Date.IsZero }}
+            <h3><time>{{ .Date.Format "2006" }}</time>, on {{ $.Date.Format "2006-01-02" }}</h3>
+              {{ else }}
+            <h3>on {{ $.Date.Format "2006-01-02" }}</h3>
+              {{ end }}
+            {{ else }}
+            <h2>{{ $.Filename }}</h2>
+            <h3>on {{ $.Date.Format "2006-01-02" }}</h3>
+            {{ end }}
+            <aside class="meta">
+              <div class="duration"><span class="current-time"></span><span class="total-time">{{ .Duration }}</span></div>
+            </aside>
+          </a>
+          <audio src="/file/{{ .ID }}" preload="none" title="{{ with .Tags }}{{ with .Artist }}{{ . }} — {{ end }}{{ .Title }}{{ end }}">
+            Web Audio unsupported.
+          </audio>
+          <div class="player-track">
+            <div class="player-bar playback-bar"></div>
+            <div class="player-bar buffer-bar"></div>
+          </div>
+        </li>
+{{ end }}
