@@ -38,7 +38,7 @@ function Visual(elem, analyser, stopSpeed, numBars) {
 	}, false);
 }
 
-visual.prototype.scaleCanvas = function(ctx) {
+Visual.prototype.scaleCanvas = function(ctx) {
 	var devicePixelRatio = window.devicePixelRatio || 1;
 	var width = ctx.canvas.clientWidth * devicePixelRatio;
 	var height = ctx.canvas.clientHeight * devicePixelRatio;

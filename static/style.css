@@ -16,7 +16,7 @@ a {
 html {
 	min-height: 100%;
 	height: 100%;
-  -webkit-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -82,7 +82,7 @@ header h1 a {
 	height: 64px;
 	line-height: 64px;
 	font-size: 28px;
-  position: relative;
+	position: relative;
 }
 header h1 a:hover {
 	background: #f00b42;
@@ -125,35 +125,35 @@ button:active {
 }
 
 .delete-song {
-  border: none;
-  position: absolute;
-  top: 8px;
-  right: 8px;
+	border: none;
+	position: absolute;
+	top: 8px;
+	right: 8px;
 	font-size: 24px;
-  color: #888;
-  z-index: 99;
+	color: #888;
+	z-index: 99;
 }
 
 .delete-song:hover {
-  color: #f00b42;
-  background: transparent;
+	color: #f00b42;
+	background: transparent;
 }
 
 h2 {
-  font-family: 'tinos', 'didot', 'georgia', 'hiragino mincho pro', 'ryo text plusn', serif;
+	font-family: 'tinos', 'didot', 'georgia', 'hiragino mincho pro', 'ryo text plusn', serif;
 	font-size: 28px;
 	font-weight: 400;
-  line-height: 1;
-  margin-bottom: 8px;
+	line-height: 1;
+	margin-bottom: 8px;
 }
 h3 {
-  /* text-transform: uppercase; */
+	/* text-transform: uppercase; */
 	font-size: 14px;
 	color: #888;
-  font-weight: 400;
+	font-weight: 400;
 }
 h3 span {
-  font-weight: 700;
+	font-weight: 700;
 }
 h3 time {
 	/* font-weight: 400; */
@@ -183,7 +183,7 @@ h3 time {
 	display: block;
 	padding: 24px 160px 24px 16px;
 	min-height: 95px;
-  position: relative;
+	position: relative;
 }
 .song a:hover {
 	color: #f00b42;
@@ -196,15 +196,15 @@ h3 time {
 	right: 0;
 	text-align: right;
 	padding: 16px;
-  height: 100%;
+	height: 100%;
 }
 .meta .duration {
 	font-size: 18px;
-  line-height: 1;
-  position: absolute;
-  bottom: 22px;
-  right: 16px;
-  width: 100px;
+	line-height: 1;
+	position: absolute;
+	bottom: 22px;
+	right: 16px;
+	width: 100px;
 }
 
 #songlist {
@@ -300,19 +300,19 @@ footer {
 }
 
 @media screen and (max-width: 1024px) {
-  .delete-song {
-    right: 16px;
-    font-size: 22px;
-  }
+	.delete-song {
+		right: 16px;
+		font-size: 22px;
+	}
 }
 
 @media screen and (max-width: 540px) {
 	h2 {
 		font-size: 20px;
 	}
-  h3 {
-    font-size: 14px;
-  }
+	h3 {
+		font-size: 14px;
+	}
 	.meta {
 		position: relative;
 		text-align: left;
@@ -321,22 +321,22 @@ footer {
 	.meta .duration, .sizedate {
 		font-size: 14px;
 		display: inline-block;
-    line-height: 1.5;
-    position: relative;
-    bottom: 0;
-    right: 0;
+		line-height: 1.5;
+		position: relative;
+		bottom: 0;
+		right: 0;
 	}
 	.delete-song {
 		/* float: right; */
-    bottom: 0;
-    right: 16px;
-    top: 0;
-    font-size: 18px;
-    line-height: 18px;
+		bottom: 0;
+		right: 16px;
+		top: 0;
+		font-size: 18px;
+		line-height: 18px;
 	}
-  .song {
-    padding-right: 32px;
-  }
+	.song {
+		padding-right: 32px;
+	}
 	.song a {
 		padding: 16px;
 	}

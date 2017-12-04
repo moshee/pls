@@ -47,6 +47,10 @@
 {{ end }}
 {{ end }}
 
+{{ define "song-wrapper" }}
+{{ template "song" $.Data }}
+{{ end }}
+
 {{ define "song" }}
         <li class="song{{ if .Fresh }} fresh{{ end }}" data-id="{{ .ID }}" data-slug="{{ .Slug }}">
           <button class="delete-song" type="button">╳</button>

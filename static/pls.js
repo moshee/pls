@@ -67,6 +67,15 @@ function json(url, cb) {
 	});
 }
 
+/*
+ * Diff two lists and execute callbacks on diffed items. Naïve diff algorithm
+ * with bad time complexity is easy to implement and suitable for small lists.
+ *
+ * a, b Array<T>: lists to compare
+ * cmp function(T, T): comparator function
+ * add, rem function(T, int, Array<T>): Array forEach callbacks to execute on
+ * added and removed items
+ */
 function diff(a, b, cmp, add, rem) {
 	var addlist = [];
 	var remlist = [];
@@ -253,51 +262,66 @@ var Pls = {
 			return;
 		}
 
-		// According to the standard FileTransfer object, this is the proper place
-		// to check for file type
-		if (files[0].type.indexOf('audio/') != 0) {
+		audioFiles = [];
+
+		for (var i = 0, file; file = files[i]; i++) {
+			// According to the standard FileTransfer object, this is the
+			// proper place to check for file type
+			if (file.type.indexOf('audio/') == 0) {
+				audioFiles.push(file);
+			}
+		}
+
+		if (audioFiles.length == 0) {
 			this.follower.hide();
 			return;
 		}
 
-		this.upload(files[0]);
+		this.upload(audioFiles);
 	},
 
 	playID: function(id) {
 		var song = $('[data-id="' + id + '"]');
-		if (song != null) {
-			var secs;
-			var fragment = window.location.hash;
+		if (song == null) {
+			return;
+		}
 
-			if (fragment != "") {
-				var parts = fragment.slice(1).split(':');
-				var mins = hrs = 0;
+		var secs;
+		var fragment = window.location.hash;
 
-				if (parts.length >= 1) {
-					secs = parseInt(parts[parts.length-1]);
-					if (parts.length >= 2) {
-						mins = parseInt(parts[parts.length-2]);
-						if (parts.length >= 3) {
-							hrs = parseInt(parts[parts.length-3]);
-						}
+		if (fragment != "") {
+			var parts = fragment.slice(1).split(':');
+			var mins = hrs = 0;
+
+			if (parts.length >= 1) {
+				secs = parseInt(parts[parts.length-1]);
+				if (parts.length >= 2) {
+					mins = parseInt(parts[parts.length-2]);
+					if (parts.length >= 3) {
+						hrs = parseInt(parts[parts.length-3]);
 					}
 				}
-
-				if (isNaN(secs) || isNaN(mins)) {
-					return;
-				}
-
-				secs += mins*60;
-				if (!isNaN(hrs)) {
-					secs += hrs*60*60;
-				}
 			}
-			song.scrollTo();
-			song.play(secs);
+
+			if (isNaN(secs) || isNaN(mins)) {
+				return;
+			}
+
+			secs += mins*60;
+			if (!isNaN(hrs)) {
+				secs += hrs*60*60;
+			}
 		}
+
+		song.scrollTo();
+		song.play(secs);
 	},
 
-	upload: function(file) {
+	upload: function(files) {
+		this.uploadFiles(files);
+	},
+
+	uploadFiles: function(files) {
 		var x = new XMLHttpRequest();
 		this.loader.reset();
 
@@ -319,13 +343,19 @@ var Pls = {
 				this.insertSong(e.target.response.querySelector('li.song'));
 			}
 			this.follower.hide();
+
+			if (files.length > 1) {
+				files.shift();
+				this.uploadFiles(files);
+			} else {
+
+			}
 		}.bind(this), false);
 
 		x.addEventListener('cancel', function() {
 			this.follower.hide();
 		}.bind(this), false);
 
-		// TODO: cancel handler
 		// TODO: put a cancel button in the middle of the loader
 
 		x.responseType = 'document';
@@ -460,6 +490,7 @@ var Pls = {
 			this.track.bufferBar.style.width = percent(end, this.duration);
 		}, false);
 
+		/*
 		audio.addEventListener('readystatechange', function(e) {
 			console.log('readystatechange ' + this.readyState);
 			if (this.readyState < this.HAVE_ENOUGH_DATA && !this.paused) {
@@ -467,6 +498,11 @@ var Pls = {
 			} else {
 				this.song.classList.remove('loading');
 			}
+		}, false);
+		*/
+
+		audio.addEventListener('canplay', function(e) {
+			this.song.classList.remove('loading');
 		}, false);
 
 		audio.hide    = function() { this.track.classList.remove('active'); };
@@ -509,6 +545,11 @@ var Pls = {
 		};
 
 		song.play = function(time) {
+			if (this.buffered == null || this.buffered.length == 0) {
+				this.classList.add('loading');
+				this.audio.track.classList.add('active');
+			}
+
 			if (that.currentSong != null) {
 				that.currentSong.stop();
 				that.currentSong.disable();

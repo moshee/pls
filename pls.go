@@ -137,7 +137,7 @@ func main() {
 	}
 
 	gas.New().
-		StaticHandler("/static", fs).
+		StaticHandler("/static", vfs.Subdir(fs, "static")).
 		Post("/upload", postUpload).
 		Get("/favicon.ico", nothing).
 		Get("/tracks", getTracks).
@@ -152,55 +152,65 @@ func nothing(g *gas.Gas) (int, gas.Outputter) {
 	return 404, nil
 }
 
+func lookupSong(id string) (*Song, error) {
+	fi := fileCache.Stat(id)
+	name := filenamePart(fi.Name())
+	s := &Song{
+		ID:       id,
+		Filename: name,
+		Slug:     generateSlug(name),
+		Size:     fmtutil.Bytes(fi.Size()),
+		Date:     fi.ModTime(),
+	}
+
+	f, err := os.Open(fileCache.Get(id))
+	if err != nil {
+		return nil, err
+	}
+
+	redoTags := false
+
+	meta, _, err := sound.DecodeMeta(f)
+	if err != nil {
+		s.Duration = "--:--"
+		log.Print(errors.Wrap(err, "decode meta "+name))
+		redoTags = true
+	} else {
+		s.Duration = fmtutil.HMS(meta.Duration())
+		if tags, ok := meta.(sound.Tags); ok {
+			s.Tags = tags
+		} else {
+			redoTags = true
+		}
+	}
+
+	if redoTags {
+		f.Seek(0, os.SEEK_SET)
+		tags, _, err := sound.DecodeTags(f)
+
+		if err != nil {
+			log.Print(name)
+			return nil, errors.Wrap(err, "decode tags "+name)
+		} else {
+			s.Tags = tags
+		}
+	}
+	f.Close()
+
+	return s, nil
+}
+
 func getIndex(g *gas.Gas) (int, gas.Outputter) {
 	ids := fileCache.SortedIDs()
 	reverse(ids)
 
 	songs := make(Songs, len(ids))
 	for i, id := range ids {
-		fi := fileCache.Stat(id)
-		name := filenamePart(fi.Name())
-		songs[i] = &Song{
-			ID:       id,
-			Filename: name,
-			Slug:     generateSlug(name),
-			Size:     fmtutil.Bytes(fi.Size()),
-			Date:     fi.ModTime(),
-		}
-
-		f, err := os.Open(fileCache.Get(id))
+		song, err := lookupSong(id)
 		if err != nil {
 			return 500, out.Error(g, err)
 		}
-
-		redoTags := false
-
-		meta, _, err := sound.DecodeMeta(f)
-		if err != nil {
-			songs[i].Duration = "--:--"
-			log.Print(errors.Wrap(err, "decode meta "+name))
-			redoTags = true
-		} else {
-			songs[i].Duration = fmtutil.HMS(meta.Duration())
-			if tags, ok := meta.(sound.Tags); ok {
-				songs[i].Tags = tags
-			} else {
-				redoTags = true
-			}
-		}
-
-		if redoTags {
-			f.Seek(0, os.SEEK_SET)
-			tags, _, err := sound.DecodeTags(f)
-
-			if err != nil {
-				log.Print(name)
-				log.Print(errors.Wrap(err, "decode tags "+name))
-			} else {
-				songs[i].Tags = tags
-			}
-		}
-		f.Close()
+		songs[i] = song
 	}
 
 	if g.Wants() == "application/json" {
@@ -301,7 +311,7 @@ func postUpload(g *gas.Gas) (int, gas.Outputter) {
 		}()
 	}
 
-	return 201, out.HTML("song", song)
+	return 201, out.HTML("song-wrapper", song)
 }
 
 func deleteSong(g *gas.Gas) (int, gas.Outputter) {
