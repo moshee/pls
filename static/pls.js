@@ -324,6 +324,7 @@ var Pls = {
 	uploadFiles: function(files) {
 		var x = new XMLHttpRequest();
 		this.loader.reset();
+		var file = files.shift();
 
 		x.upload.addEventListener('progress', function(e) {
 			if (e.lengthComputable) {
@@ -342,13 +343,12 @@ var Pls = {
 			} else {
 				this.insertSong(e.target.response.querySelector('li.song'));
 			}
-			this.follower.hide();
 
-			if (files.length > 1) {
-				files.shift();
+			if (files.length > 0) {
 				this.uploadFiles(files);
 			} else {
-
+				// all done
+				this.follower.hide();
 			}
 		}.bind(this), false);
 
@@ -414,7 +414,12 @@ var Pls = {
 			var seek = function() {
 				this.removeEventListener('seeked', seek);
 				if (!this.wasPaused) {
+					this.audio.muted = false;
 					this.play();
+
+					// required to get around Chrome's new crappy anti-autoplay implementation
+					// https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio
+					that.ctx.resume();
 				}
 			};
 			this.audio.addEventListener('seeked', seek, false);
@@ -575,6 +580,8 @@ var Pls = {
 				this.mediaSource.connect(that.analyser);
 			}
 
+			this.audio.muted = false;
+
 			if (time != null) {
 				var f = function() {
 					this.currentTime = time;
@@ -591,6 +598,7 @@ var Pls = {
 			} else {
 				this.audio.play();
 			}
+			that.ctx.resume();
 		};
 
 		song.toggle = function() {

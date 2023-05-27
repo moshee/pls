@@ -217,7 +217,7 @@ func getIndex(g *gas.Gas) (int, gas.Outputter) {
 		return 200, out.JSON(songs)
 	}
 
-	return 200, out.HTML("index", songs)
+	return 200, out.HTML("index/index", songs)
 }
 
 func getTracks(g *gas.Gas) (int, gas.Outputter) {
@@ -311,7 +311,7 @@ func postUpload(g *gas.Gas) (int, gas.Outputter) {
 		}()
 	}
 
-	return 201, out.HTML("song-wrapper", song)
+	return 201, out.HTML("index/song-wrapper", song)
 }
 
 func deleteSong(g *gas.Gas) (int, gas.Outputter) {
