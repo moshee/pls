@@ -27,6 +27,7 @@ import (
 	"ktkr.us/pkg/gas/out"
 	"ktkr.us/pkg/irc"
 	"ktkr.us/pkg/sound"
+	_ "ktkr.us/pkg/sound/flac"
 	_ "ktkr.us/pkg/sound/mp3"
 	_ "ktkr.us/pkg/sound/vorbis"
 	"ktkr.us/pkg/vfs"
